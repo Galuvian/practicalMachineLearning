@@ -237,7 +237,7 @@ full_testing &lt;- read.csv(testing_file)
 
 <p>10% is a low number, but training a random forest is REALLY SLOW and 10% seems to produce results that are accurate enough.</p>
 
-<p>The source data is not sequential, but does appear to be sorted by both the classe and user_name columns.  So we will use a partitioning technique that randomly mixes up the data.</p>
+<p>The source data is not sequential (meaning records don&#39;t depend on previous records), but does appear to be sorted by both the classe and user_name columns.  So we will use a partitioning technique that randomly mixes up the data.</p>
 
 <pre><code class="r">library(caret)
 </code></pre>
@@ -263,7 +263,7 @@ validation &lt;- full_training[-inTrain, keepCols]
 
 <h2>Performance</h2>
 
-<p>We will enablemulti-threading to speed up the training.  </p>
+<p>We will enable multi-threading to speed up the training.  </p>
 
 <pre><code class="r">library(doParallel)
 </code></pre>
@@ -280,30 +280,19 @@ registerDoParallel(cores = 4)
 
 <h2>Training</h2>
 
+<p>The <strong>classe</strong> field contains the value we are trying to predict.  A,B,C,D, and E.  These equate to the quality of the exercise performed.  A means it was performed correctly, and the other values indicate bad form (but the same bad form for each letter).</p>
+
 <pre><code class="r">modFit &lt;- train(classe ~ ., data = training, method = &quot;rf&quot;)
 </code></pre>
 
-<pre><code>## Loading required package: randomForest
-## randomForest 4.6-7
-## Type rfNews() to see new features/changes/bug fixes.
-</code></pre>
-
-<pre><code class="r">
-</code></pre>
+<p>This takes a few minutes to run.</p>
 
 <h2>Validation</h2>
 
 <p>With a model trained, we can use the validation records to assess how accurate model is.</p>
 
 <pre><code class="r">valResults &lt;- predict(modFit, newdata = validation)
-</code></pre>
-
-<pre><code>## Loading required package: randomForest
-## randomForest 4.6-7
-## Type rfNews() to see new features/changes/bug fixes.
-</code></pre>
-
-<pre><code class="r">validation$answer &lt;- valResults
+validation$answer &lt;- valResults
 
 </code></pre>
 
@@ -317,8 +306,8 @@ summary(tmp)
 
 <pre><code>##     user_name    classe   answer     match        
 ##  adelmo  :3513   A:5019   A:5136   Mode :logical  
-##  carlitos:2780   B:3413   B:3313   FALSE:369      
-##  charles :3184   C:3100   C:3109   TRUE :17289    
+##  carlitos:2780   B:3413   B:3312   FALSE:370      
+##  charles :3184   C:3100   C:3110   TRUE :17288    
 ##  eurico  :2790   D:2867   D:2883   NA&#39;s :0        
 ##  jeremy  :3042   E:3259   E:3217                  
 ##  pedro   :2349
@@ -331,16 +320,13 @@ table(tmp$answer, tmp$classe)
 <pre><code>##    
 ##        A    B    C    D    E
 ##   A 5011  125    0    0    0
-##   B    8 3236   69    0    0
-##   C    0   43 3023   43    0
+##   B    8 3235   69    0    0
+##   C    0   44 3023   43    0
 ##   D    0    9    8 2813   53
 ##   E    0    0    0   11 3206
 </code></pre>
 
-<pre><code class="r">
-</code></pre>
-
-<p>Of 17658 records in the validation set, 17289, or 97.9103% matched and 369 did not match.  The out of sample error rate is 2.0897%.</p>
+<p>Of 17658 records in the validation set, 17288, or 97.9046% matched and 370 did not match.  The out of sample error rate is 2.0954%.</p>
 
 <h1>Results of Test Set</h1>
 

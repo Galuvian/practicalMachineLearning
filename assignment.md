@@ -5,6 +5,8 @@ Practical Machine Learing Assignment
 
 This assignment is to take a bunch of sensor data collected while subjects were performing barbell excercises, and predict the quality of the movements the subject made based on the test data.
 
+
+
 # Data Preparation
 
 ## Data Source
@@ -60,7 +62,7 @@ A 10/90 split will be made with the data.  10% for training and the remaining 90
 
 10% is a low number, but training a random forest is REALLY SLOW and 10% seems to produce results that are accurate enough.
 
-The source data is not sequential, but does appear to be sorted by both the classe and user_name columns.  So we will use a partitioning technique that randomly mixes up the data.
+The source data is not sequential (meaning records don't depend on previous records), but does appear to be sorted by both the classe and user_name columns.  So we will use a partitioning technique that randomly mixes up the data.
 
 
 ```r
@@ -91,7 +93,7 @@ Reading the supporting documentation for the data, the original authors said tha
 
 ## Performance
 
-We will enablemulti-threading to speed up the training.  
+We will enable multi-threading to speed up the training.  
 
 
 ```r
@@ -113,22 +115,15 @@ registerDoParallel(cores = 4)
 
 ## Training
 
+The **classe** field contains the value we are trying to predict.  A,B,C,D, and E.  These equate to the quality of the exercise performed.  A means it was performed correctly, and the other values indicate bad form (but the same bad form for each letter).
 
 
 ```r
 modFit <- train(classe ~ ., data = training, method = "rf")
 ```
 
-```
-## Loading required package: randomForest
-## randomForest 4.6-7
-## Type rfNews() to see new features/changes/bug fixes.
-```
 
-```r
-
-```
-
+This takes a few minutes to run.
 
 ## Validation
 
@@ -137,15 +132,6 @@ With a model trained, we can use the validation records to assess how accurate m
 
 ```r
 valResults <- predict(modFit, newdata = validation)
-```
-
-```
-## Loading required package: randomForest
-## randomForest 4.6-7
-## Type rfNews() to see new features/changes/bug fixes.
-```
-
-```r
 validation$answer <- valResults
 
 ```
@@ -164,8 +150,8 @@ summary(tmp)
 ```
 ##     user_name    classe   answer     match        
 ##  adelmo  :3513   A:5019   A:5136   Mode :logical  
-##  carlitos:2780   B:3413   B:3313   FALSE:369      
-##  charles :3184   C:3100   C:3109   TRUE :17289    
+##  carlitos:2780   B:3413   B:3312   FALSE:370      
+##  charles :3184   C:3100   C:3110   TRUE :17288    
 ##  eurico  :2790   D:2867   D:2883   NA's :0        
 ##  jeremy  :3042   E:3259   E:3217                  
 ##  pedro   :2349
@@ -180,21 +166,17 @@ table(tmp$answer, tmp$classe)
 ##    
 ##        A    B    C    D    E
 ##   A 5011  125    0    0    0
-##   B    8 3236   69    0    0
-##   C    0   43 3023   43    0
+##   B    8 3235   69    0    0
+##   C    0   44 3023   43    0
 ##   D    0    9    8 2813   53
 ##   E    0    0    0   11 3206
 ```
 
-```r
-
-```
 
 
 
 
-
-Of 17658 records in the validation set, 17289, or 97.9103% matched and 369 did not match.  The out of sample error rate is 2.0897%.
+Of 17658 records in the validation set, 17288, or 97.9046% matched and 370 did not match.  The out of sample error rate is 2.0954%.
 
 # Results of Test Set
 

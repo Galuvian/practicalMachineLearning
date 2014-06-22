@@ -5,6 +5,8 @@ Practical Machine Learing Assignment
 
 This assignment is to take a bunch of sensor data collected while subjects were performing barbell excercises, and predict the quality of the movements the subject made based on the test data.
 
+
+
 # Data Preparation
 
 ## Data Source
@@ -52,7 +54,7 @@ A 10/90 split will be made with the data.  10% for training and the remaining 90
 
 10% is a low number, but training a random forest is REALLY SLOW and 10% seems to produce results that are accurate enough.
 
-The source data is not sequential, but does appear to be sorted by both the classe and user_name columns.  So we will use a partitioning technique that randomly mixes up the data.
+The source data is not sequential (meaning records don't depend on previous records), but does appear to be sorted by both the classe and user_name columns.  So we will use a partitioning technique that randomly mixes up the data.
 
 ```{r}
 library(caret)
@@ -74,7 +76,7 @@ Reading the supporting documentation for the data, the original authors said tha
 
 ## Performance
 
-We will enablemulti-threading to speed up the training.  
+We will enable multi-threading to speed up the training.  
 
 ```{r  echo=TRUE}
 library(doParallel)
@@ -86,12 +88,13 @@ registerDoParallel(cores=4)
 
 ## Training
 
+The **classe** field contains the value we are trying to predict.  A,B,C,D, and E.  These equate to the quality of the exercise performed.  A means it was performed correctly, and the other values indicate bad form (but the same bad form for each letter).
 
 ```{r, cache=TRUE }
 modFit <- train(classe ~ .,data=training,method="rf")
-
-
 ```
+
+This takes a few minutes to run.
 
 ## Validation
 
@@ -113,8 +116,6 @@ tmp$match <- tmp$classe == tmp$answer
 summary(tmp)
 
 table(tmp$answer,tmp$classe)
-
-
 ```
 
 ```{r, echo=FALSE}
